@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+# NOTE: this example requires PyAudio because it uses the Microphone class
+
+import time
+
+import pyglet
+import speech_recognition as sr
+from gtts import gTTS
+
+from libs import utils
+
+log = utils.get_logger(__name__)
+r = sr.Recognizer()
+
+
+def speech_to_text(timeout=15, phrase_time_limit=10):
+    with sr.Microphone() as source:
+        try:
+            audio = r.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
+        except sr.WaitTimeoutError as e:
+            log.info('Timed out')
+            return False
+
+        try:
+            return r.recognize_google(audio)
+
+        except sr.UnknownValueError:
+            log.info("Google Speech Recognition could not understand audio")
+            return False
+
+        except sr.RequestError as e:
+            log.info("Could not request results from Google Speech Recognition service; {0}".format(e))
+            return False
+
+
+def play_text(text, wait_to_finish=True):
+    tts = gTTS(text=text, lang='en')
+    filename = '/tmp/temp.mp3'
+    tts.save(filename)
+    music = pyglet.media.load(filename, streaming=False)
+    music.play()
+    log.info("Speaking: %s" % (text,))
+    if wait_to_finish:
+        time.sleep(music.duration)
