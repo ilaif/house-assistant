@@ -91,3 +91,6 @@ class PiCamera(Camera):
 
     def capture(self):
         self.video_capture.capture(self.frame, format="rgb")
+
+    def get_small_frame(self):
+        return self.frame

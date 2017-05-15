@@ -43,11 +43,9 @@ if __name__ == '__main__':
             profile["said_hello"] = False
             recognized_faces.append(profile)
 
-        percentage = float(cou) / len(profiles) * 100
-        if percentage % 10 == 0:
-            log.info("Progress: %s%%" % (round(percentage),))
-
         cou += 1
+        if cou % 2 == 0:
+            log.info("Progress: %s/%s" % (cou, len(profiles)))
 
     log.info("Loaded!")
 
