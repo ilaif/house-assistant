@@ -1,0 +1,8 @@
+face_recognition
+fuzzywuzzy
+python-Levenshtein
+pyglet
+SpeechRecognition
+requests
+google-api-python-client
+gTTS
