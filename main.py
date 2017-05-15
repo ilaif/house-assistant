@@ -3,14 +3,13 @@ import json
 import cv2
 from fuzzywuzzy import fuzz
 import face_recognition
-import picamera
 
 import speech
 from libs import utils
 from libs.StoppableThread import StoppableThread
+from libs.Camera import MacCamera, PiCamera
 
 log = utils.get_logger(__name__)
-FRAME_REDUCTION = 4
 PROFILE_IMAGES_PATH = 'profile_images/'
 IMAGE_EXTENSION = '.jpeg'
 MATCH_TOLERANCE = 0.47
@@ -63,7 +62,8 @@ if __name__ == '__main__':
 
     log.info("Loading...")
 
-    video_capture = cv2.VideoCapture(0)
+    # Init camera
+    camera = PiCamera() if utils.is_rpi() else MacCamera()
 
     # Load a sample picture and learn how to recognize it.
     profiles = load_profiles()
@@ -90,10 +90,7 @@ if __name__ == '__main__':
 
     while True:
         # Grab a single frame of video
-        ret, frame = video_capture.read()
-
-        # Resize frame of video to 1/4 size for faster face recognition processing
-        small_frame = cv2.resize(frame, (0, 0), fx=1.0 / FRAME_REDUCTION, fy=1.0 / FRAME_REDUCTION)
+        camera.capture()
 
         if t is not None and not t.is_alive():
             is_speaking = False
@@ -101,8 +98,8 @@ if __name__ == '__main__':
         # Only process every other frame of video to save time
         if process_this_frame:
             # Find all the faces and face encodings in the current frame of video
-            face_locations = face_recognition.face_locations(small_frame)
-            face_encodings = face_recognition.face_encodings(small_frame, face_locations)
+            face_locations = face_recognition.face_locations(camera.get_small_frame())
+            face_encodings = face_recognition.face_encodings(camera.get_small_frame(), face_locations)
 
             face_names = []
             for face_encoding in face_encodings:
@@ -126,22 +123,8 @@ if __name__ == '__main__':
 
         # Display the results
         for (top, right, bottom, left), name in zip(face_locations, face_names):
-            # Scale back up face locations since the frame we detected in was scaled to 1/4 size
-            top *= FRAME_REDUCTION
-            right *= FRAME_REDUCTION
-            bottom *= FRAME_REDUCTION
-            left *= FRAME_REDUCTION
-
-            # Draw a box around the face
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-
-            # Draw a label with a name below the face
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-
-        # Display the resulting image
-        cv2.imshow('Video', frame)
+            camera.add_face_frame(top, right, bottom, left, name)
+        camera.display_face_frames()
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -150,8 +133,7 @@ if __name__ == '__main__':
             break
 
     # Release handle to the webcam
-    video_capture.release()
-    cv2.destroyAllWindows()
+    camera.release()
 
 recognized_faces = [
     {"img_path": "ilai.jpg", "name": "Ilai", "birth_day": "5th of August, 1989"},

@@ -1,4 +1,5 @@
 import logging
+import os
 
 
 def get_logger(name):
@@ -9,3 +10,7 @@ def get_logger(name):
     logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
     return logger
+
+
+def is_rpi():
+    return os.uname()[4].startswith("arm")
