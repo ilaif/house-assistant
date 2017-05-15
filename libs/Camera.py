@@ -90,4 +90,4 @@ class PiCamera(Camera):
         self.frame = np.empty((240, 320, 3), dtype=np.uint8)
 
     def capture(self):
-        self.camera_module.capture(self.frame, format="rgb")
+        self.video_capture.capture(self.frame, format="rgb")
