@@ -1,6 +1,5 @@
 import json
 
-import cv2
 from fuzzywuzzy import fuzz
 import face_recognition
 
