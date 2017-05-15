@@ -32,6 +32,8 @@ if __name__ == '__main__':
     profiles = load_profiles()
 
     recognized_faces = []
+    log.info("Feed-forwarding %s profiles" % (len(profiles)))
+    cou = 0
     for profile in profiles:
         image = face_recognition.load_image_file(profile["img_path"])
         face_encoding = face_recognition.face_encodings(image)
@@ -40,6 +42,12 @@ if __name__ == '__main__':
             profile["encoding"] = face_encoding[0]
             profile["said_hello"] = False
             recognized_faces.append(profile)
+
+        percentage = float(cou) / len(profiles) * 100
+        if percentage % 10 == 0:
+            log.info("Progress: %s%%" % (round(percentage),))
+
+        cou += 1
 
     log.info("Loaded!")
 

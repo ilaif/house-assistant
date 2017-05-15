@@ -85,8 +85,8 @@ class PiCamera(Camera):
         import picamera
         self.camera_module = picamera
 
-        video_capture = self.camera_module.PiCamera()
-        video_capture.resolution = (320, 240)
+        self.video_capture = self.camera_module.PiCamera()
+        self.video_capture.resolution = (320, 240)
         self.frame = np.empty((240, 320, 3), dtype=np.uint8)
 
     def capture(self):
