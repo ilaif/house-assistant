@@ -27,6 +27,9 @@ class Camera:
     def display_face_frames(self):
         pass
 
+    def did_stop(self):
+        pass
+
     def release(self):
         pass
 
@@ -66,6 +69,9 @@ class MacCamera(Camera):
     def display_face_frames(self):
         # Display the resulting image
         self.camera_module.imshow('Video', self.frame)
+
+    def did_stop(self):
+        return self.camera_module.waitKey(1) & 0xFF == ord('q')
 
     def release(self):
         self.video_capture.release()

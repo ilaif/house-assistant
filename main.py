@@ -1,52 +1,16 @@
 import json
 
-from fuzzywuzzy import fuzz
 import face_recognition
 
-import speech
 from libs import utils
-from libs.StoppableThread import StoppableThread
 from libs.Camera import MacCamera, PiCamera
+from libs.StoppableThread import StoppableThread
+from modules import speech_module
 
 log = utils.get_logger(__name__)
 PROFILE_IMAGES_PATH = 'profile_images/'
 IMAGE_EXTENSION = '.jpeg'
 MATCH_TOLERANCE = 0.47
-
-
-def welcome_to_party(person_name):
-    speech.play_text('Hello %s, I hope you enjoy the party!' % (person_name,))
-    return True
-
-
-def first_occurrence(person_name, birth_day):
-    speech.play_text('Hello %s, what is your birth day?' % (person_name,))
-
-    while True:
-        person_input = speech.speech_to_text()
-        if not person_input:
-            speech.play_text('Please answer the question')
-            continue
-
-        cmp_score = fuzz.token_sort_ratio(person_input, birth_day)
-        log.info("Phrase comparison score: %s" % (cmp_score,))
-        if cmp_score >= 90:
-            speech.play_text('Correct!')
-            break
-        elif cmp_score <= 25:
-            speech.play_text('Please answer the question. If you want me to stop, say, "I suck!"')
-            person_input = speech.speech_to_text()
-            if not person_input:
-                continue
-            if fuzz.ratio(person_input, "I suck") > 90:
-                speech.play_text('Good choice! Have a nice day, %s' % (name,))
-                break
-            else:
-                speech.play_text('Suit yourself, I will continue.')
-        else:
-            speech.play_text('Wrong Answer, please try again')
-
-    return True
 
 
 def load_profiles():
@@ -112,7 +76,7 @@ if __name__ == '__main__':
                         name = recognized_faces[i]["name"]
                         if not recognized_faces[i]["said_hello"] and not is_speaking:
                             recognized_faces[i]["said_hello"] = True
-                            t = StoppableThread(target=welcome_to_party, args=(name,))
+                            t = StoppableThread(target=speech_module.welcome_to_party, args=(name,))
                             is_speaking = True
                             t.start()
 
@@ -126,7 +90,7 @@ if __name__ == '__main__':
         camera.display_face_frames()
 
         # Hit 'q' on the keyboard to quit!
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if camera.did_stop():
             if t is not None:
                 t.stop()
             break
@@ -134,9 +98,9 @@ if __name__ == '__main__':
     # Release handle to the webcam
     camera.release()
 
-recognized_faces = [
-    {"img_path": "ilai.jpg", "name": "Ilai", "birth_day": "5th of August, 1989"},
-    {"img_path": "aviv.jpg", "name": "Aviv", "birth_day": "9th of April, 1989"},
-    {"img_path": "omri.jpg", "name": "Omri", "birth_day": "5th of October, 1989"},
-    {"img_path": "mickey.jpg", "name": "Mickey", "birth_day": "20th of December, 1988"}
-]
+# recognized_faces = [
+#     {"img_path": "ilai.jpg", "name": "Ilai", "birth_day": "5th of August, 1989"},
+#     {"img_path": "aviv.jpg", "name": "Aviv", "birth_day": "9th of April, 1989"},
+#     {"img_path": "omri.jpg", "name": "Omri", "birth_day": "5th of October, 1989"},
+#     {"img_path": "mickey.jpg", "name": "Mickey", "birth_day": "20th of December, 1988"}
+# ]
