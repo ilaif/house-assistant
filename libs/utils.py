@@ -11,7 +11,7 @@ def get_logger(name):
     logger.setLevel(logging.DEBUG)
     logger.addHandler(stdout_handler)
 
-    file_handler = logging.FileHandler('house-assistant.log')
+    file_handler = logging.FileHandler('/var/log/house-assistant.log')
     file_handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
