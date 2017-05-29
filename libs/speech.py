@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # NOTE: this example requires PyAudio because it uses the Microphone class
-
+import subprocess
 import time
 
 import speech_recognition as sr
@@ -12,6 +12,7 @@ from libs import utils
 
 log = utils.get_logger(__name__)
 r = sr.Recognizer()
+
 pygame.mixer.init()
 
 
@@ -40,14 +41,22 @@ def play_text(text, wait_to_finish=True):
         tts = gTTS(text=text, lang='en')
         filename = '/tmp/temp.mp3'
         tts.save(filename)
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
         # music = pyglet.media.load(filename, streaming=False)
         # music.play()
+        process = None
+        if utils.is_rpi():
+            process = subprocess.Popen('omxplayer ' + filename)
+        else:
+            pygame.mixer.music.load(filename)
+            pygame.mixer.music.play()
+
         log.info("Speaking: %s" % (text,))
         if wait_to_finish:
-            pass
-            # time.sleep(music.duration)
-            # time.sleep(s.get_length())
+            if utils.is_rpi():
+                process.wait()
+            else:
+                while pygame.mixer.music.get_busy():
+                    time.sleep(1)
+
     except BaseException as e:
         log.info(e)
