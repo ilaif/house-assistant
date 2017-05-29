@@ -4,11 +4,18 @@ import os
 
 def get_logger(name):
     formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
+
+    stdout_handler = logging.StreamHandler()
+    stdout_handler.setFormatter(formatter)
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
+    logger.addHandler(stdout_handler)
+
+    file_handler = logging.FileHandler('house-assistant.log')
+    file_handler.setFormatter(formatter)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(file_handler)
+
     return logger
 
 
