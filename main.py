@@ -8,7 +8,8 @@ from libs.StoppableThread import StoppableThread
 from modules import speech_module
 import time
 
-CONFIG_PATH = "./config.json"
+utils.change_cwd_to_file_directory(__file__)
+CONFIG_PATH = "config.json"
 with open(CONFIG_PATH, 'r') as f:
     conf = json.load(f)
 log = utils.get_logger(__name__)
