@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python3 main.py
+/usr/bin/python3 /home/pi/house-assistant/main.py
