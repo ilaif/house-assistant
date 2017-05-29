@@ -6,3 +6,4 @@ SpeechRecognition
 requests
 google-api-python-client
 gTTS
+pygame

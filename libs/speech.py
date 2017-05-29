@@ -4,14 +4,15 @@
 
 import time
 
-import pyglet
 import speech_recognition as sr
 from gtts import gTTS
+import pygame
 
 from libs import utils
 
 log = utils.get_logger(__name__)
 r = sr.Recognizer()
+pygame.mixer.init()
 
 
 def speech_to_text(timeout=15, phrase_time_limit=10):
@@ -38,8 +39,12 @@ def play_text(text, wait_to_finish=True):
     tts = gTTS(text=text, lang='en')
     filename = '/tmp/temp.mp3'
     tts.save(filename)
-    music = pyglet.media.load(filename, streaming=False)
-    music.play()
+    pygame.mixer.music.load(filename)
+    pygame.mixer.music.play()
+    # music = pyglet.media.load(filename, streaming=False)
+    # music.play()
     log.info("Speaking: %s" % (text,))
     if wait_to_finish:
-        time.sleep(music.duration)
+        pass
+        # time.sleep(music.duration)
+        # time.sleep(s.get_length())

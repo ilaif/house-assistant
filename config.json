@@ -1,0 +1,7 @@
+{
+  "profiles_list": "test_profiles_list.json",
+  "profile_images_path": "profile_images/",
+  "image_extension": ".jpeg",
+  "match_tolerance": 0.47,
+  "do_say_hello": true
+}

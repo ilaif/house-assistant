@@ -5,7 +5,7 @@ log = utils.get_logger(__name__)
 
 
 def welcome_to_party(person_name):
-    speech.play_text('Hello %s, I hope you enjoy the party!' % (person_name,))
+    speech.play_text('Hello %s. I hope you enjoy the party!!!' % (person_name,))
     return True
 
 

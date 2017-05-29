@@ -6,19 +6,20 @@ from libs import utils
 from libs.Camera import MacCamera, PiCamera
 from libs.StoppableThread import StoppableThread
 from modules import speech_module
+import time
 
+CONFIG_PATH = "./config.json"
+with open(CONFIG_PATH, 'r') as f:
+    conf = json.load(f)
 log = utils.get_logger(__name__)
-PROFILE_IMAGES_PATH = 'profile_images/'
-IMAGE_EXTENSION = '.jpeg'
-MATCH_TOLERANCE = 0.47
-DO_SAY_HELLO = False
+last_time = time.time()
 
 
 def load_profiles():
-    with open('profiles_list.json', 'r') as f:
+    with open(conf["profiles_list"], 'r') as f:
         loaded_profiles = json.load(f)
         for i, profile in enumerate(loaded_profiles):
-            loaded_profiles[i]['img_path'] = PROFILE_IMAGES_PATH + profile['id'] + IMAGE_EXTENSION
+            loaded_profiles[i]['img_path'] = conf["profile_images_path"] + profile['id'] + conf["image_extension"]
         return loaded_profiles
 
 
@@ -75,7 +76,7 @@ if __name__ == '__main__':
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
                 encodings = [f["encoding"] for f in recognized_faces]
-                match = face_recognition.compare_faces(encodings, face_encoding, tolerance=MATCH_TOLERANCE)
+                match = face_recognition.compare_faces(encodings, face_encoding, tolerance=conf["match_tolerance"])
                 name = "Unknown"
 
                 for i in range(len(encodings)):
@@ -84,7 +85,7 @@ if __name__ == '__main__':
                         if not recognized_faces[i]["said_hello"] and not is_speaking:
                             log.info("Detected %s" % (name,))
                             recognized_faces[i]["said_hello"] = True
-                            if DO_SAY_HELLO:
+                            if conf["do_say_hello"]:
                                 t = StoppableThread(target=speech_module.welcome_to_party, args=(name,))
                                 is_speaking = True
                                 t.start()
@@ -104,12 +105,10 @@ if __name__ == '__main__':
                 t.stop()
             break
 
+        if time.time() - last_time > 30:
+            with open(CONFIG_PATH, 'r') as f:
+                conf = json.load(f)
+            last_time = time.time()
+
     # Release handle to the webcam
     camera.release()
-
-# recognized_faces = [
-#     {"img_path": "ilai.jpg", "name": "Ilai", "birth_day": "5th of August, 1989"},
-#     {"img_path": "aviv.jpg", "name": "Aviv", "birth_day": "9th of April, 1989"},
-#     {"img_path": "omri.jpg", "name": "Omri", "birth_day": "5th of October, 1989"},
-#     {"img_path": "mickey.jpg", "name": "Mickey", "birth_day": "20th of December, 1988"}
-# ]
