@@ -11,6 +11,7 @@ log = utils.get_logger(__name__)
 PROFILE_IMAGES_PATH = 'profile_images/'
 IMAGE_EXTENSION = '.jpeg'
 MATCH_TOLERANCE = 0.47
+DO_SAY_HELLO = False
 
 
 def load_profiles():
@@ -81,10 +82,12 @@ if __name__ == '__main__':
                     if match[i]:
                         name = recognized_faces[i]["name"]
                         if not recognized_faces[i]["said_hello"] and not is_speaking:
+                            log.info("Detected %s" % (name,))
                             recognized_faces[i]["said_hello"] = True
-                            t = StoppableThread(target=speech_module.welcome_to_party, args=(name,))
-                            is_speaking = True
-                            t.start()
+                            if DO_SAY_HELLO:
+                                t = StoppableThread(target=speech_module.welcome_to_party, args=(name,))
+                                is_speaking = True
+                                t.start()
 
                 face_names.append(name)
 
