@@ -45,7 +45,7 @@ def play_text(text, wait_to_finish=True):
         # music.play()
         process = None
         if utils.is_rpi():
-            process = subprocess.Popen(['omxplayer ', filename])
+            process = subprocess.Popen(['omxplayer', filename])
         else:
             pygame.mixer.music.load(filename)
             pygame.mixer.music.play()

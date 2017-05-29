@@ -116,7 +116,7 @@ if __name__ == '__main__':
                     conf = json.load(f)
                 last_time = time.time()
 
-        except BaseException as e:
+        except Exception as e:
             log.error(e)
 
     # Release handle to the webcam
