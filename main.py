@@ -64,55 +64,60 @@ if __name__ == '__main__':
     is_speaking = False
 
     while True:
-        # Grab a single frame of video
-        camera.capture()
+        try:
 
-        if t is not None and not t.is_alive():
-            is_speaking = False
+            # Grab a single frame of video
+            camera.capture()
 
-        # Only process every other frame of video to save time
-        if process_this_frame:
-            # Find all the faces and face encodings in the current frame of video
-            face_locations = face_recognition.face_locations(camera.get_small_frame())
-            face_encodings = face_recognition.face_encodings(camera.get_small_frame(), face_locations)
+            if t is not None and not t.is_alive():
+                is_speaking = False
 
-            face_names = []
-            for face_encoding in face_encodings:
-                # See if the face is a match for the known face(s)
-                encodings = [f["encoding"] for f in recognized_faces]
-                match = face_recognition.compare_faces(encodings, face_encoding, tolerance=conf["match_tolerance"])
-                name = "Unknown"
+            # Only process every other frame of video to save time
+            if process_this_frame:
+                # Find all the faces and face encodings in the current frame of video
+                face_locations = face_recognition.face_locations(camera.get_small_frame())
+                face_encodings = face_recognition.face_encodings(camera.get_small_frame(), face_locations)
 
-                for i in range(len(encodings)):
-                    if match[i]:
-                        name = recognized_faces[i]["name"]
-                        if not recognized_faces[i]["said_hello"] and not is_speaking:
-                            log.info("Detected %s" % (name,))
-                            recognized_faces[i]["said_hello"] = True
-                            if conf["do_say_hello"]:
-                                t = StoppableThread(target=speech_module.welcome_to_party, args=(name,))
-                                is_speaking = True
-                                t.start()
+                face_names = []
+                for face_encoding in face_encodings:
+                    # See if the face is a match for the known face(s)
+                    encodings = [f["encoding"] for f in recognized_faces]
+                    match = face_recognition.compare_faces(encodings, face_encoding, tolerance=conf["match_tolerance"])
+                    name = "Unknown"
 
-                face_names.append(name)
+                    for i in range(len(encodings)):
+                        if match[i]:
+                            name = recognized_faces[i]["name"]
+                            if not recognized_faces[i]["said_hello"] and not is_speaking:
+                                log.info("Detected %s" % (name,))
+                                recognized_faces[i]["said_hello"] = True
+                                if conf["do_say_hello"]:
+                                    t = StoppableThread(target=speech_module.welcome_to_party, args=(name,))
+                                    is_speaking = True
+                                    t.start()
 
-        process_this_frame = not process_this_frame
+                    face_names.append(name)
 
-        # Display the results
-        for (top, right, bottom, left), name in zip(face_locations, face_names):
-            camera.add_face_frame(top, right, bottom, left, name)
-        camera.display_face_frames()
+            process_this_frame = not process_this_frame
 
-        # Hit 'q' on the keyboard to quit!
-        if camera.did_stop():
-            if t is not None:
-                t.stop()
-            break
+            # Display the results
+            for (top, right, bottom, left), name in zip(face_locations, face_names):
+                camera.add_face_frame(top, right, bottom, left, name)
+            camera.display_face_frames()
 
-        if time.time() - last_time > 30:
-            with open(CONFIG_PATH, 'r') as f:
-                conf = json.load(f)
-            last_time = time.time()
+            # Hit 'q' on the keyboard to quit!
+            if camera.did_stop():
+                if t is not None:
+                    t.stop()
+                break
+
+            if time.time() - last_time > 30:
+                with open(CONFIG_PATH, 'r') as f:
+                    conf = json.load(f)
+                last_time = time.time()
+
+        except BaseException as e:
+            log.error(e)
 
     # Release handle to the webcam
     camera.release()

@@ -36,15 +36,18 @@ def speech_to_text(timeout=15, phrase_time_limit=10):
 
 
 def play_text(text, wait_to_finish=True):
-    tts = gTTS(text=text, lang='en')
-    filename = '/tmp/temp.mp3'
-    tts.save(filename)
-    pygame.mixer.music.load(filename)
-    pygame.mixer.music.play()
-    # music = pyglet.media.load(filename, streaming=False)
-    # music.play()
-    log.info("Speaking: %s" % (text,))
-    if wait_to_finish:
-        pass
-        # time.sleep(music.duration)
-        # time.sleep(s.get_length())
+    try:
+        tts = gTTS(text=text, lang='en')
+        filename = '/tmp/temp.mp3'
+        tts.save(filename)
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+        # music = pyglet.media.load(filename, streaming=False)
+        # music.play()
+        log.info("Speaking: %s" % (text,))
+        if wait_to_finish:
+            pass
+            # time.sleep(music.duration)
+            # time.sleep(s.get_length())
+    except BaseException as e:
+        log.info(e)
