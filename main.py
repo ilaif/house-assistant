@@ -2,7 +2,7 @@ import json
 
 import face_recognition
 
-from libs import utils
+from libs import utils, speech
 from libs.Camera import MacCamera, PiCamera
 from libs.StoppableThread import StoppableThread
 from modules import speech_module
@@ -27,6 +27,7 @@ def load_profiles():
 if __name__ == '__main__':
 
     log.info("Loading...")
+    speech.play_text('I am loading...')
 
     # Init camera
     camera = PiCamera() if utils.is_rpi() else MacCamera()
@@ -36,6 +37,7 @@ if __name__ == '__main__':
 
     recognized_faces = []
     log.info("Feed-forwarding %s profiles" % (len(profiles)))
+    speech.play_text('Now feeding the deep neural network with target profiles...')
     cou = 0
     for profile in profiles:
         image = face_recognition.load_image_file(profile["img_path"])
@@ -51,6 +53,7 @@ if __name__ == '__main__':
             log.info("Progress: %s/%s" % (cou, len(profiles)))
 
     log.info("Loaded!")
+    speech.play_text('Profiles loaded! I am ready.')
 
     # Initialize some variables
     face_locations = []
