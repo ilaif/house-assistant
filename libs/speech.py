@@ -43,20 +43,13 @@ def play_text(text, wait_to_finish=True):
         tts.save(filename)
         # music = pyglet.media.load(filename, streaming=False)
         # music.play()
-        process = None
-        if utils.is_rpi():
-            process = subprocess.Popen(['omxplayer', filename])
-        else:
-            pygame.mixer.music.load(filename)
-            pygame.mixer.music.play()
-
         log.info("Speaking: %s" % (text,))
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+
         if wait_to_finish:
-            if utils.is_rpi():
-                process.wait()
-            else:
-                while pygame.mixer.music.get_busy():
-                    time.sleep(1)
+            while pygame.mixer.music.get_busy():
+                time.sleep(1)
 
     except BaseException as e:
         log.info(e)
